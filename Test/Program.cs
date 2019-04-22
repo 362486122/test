@@ -7,6 +7,8 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Events;
 
 namespace Test
 {
@@ -14,6 +16,11 @@ namespace Test
     {
         public static void Main(string[] args)
         {
+            Serilog.Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose() 
+                .Enrich.FromLogContext()
+                .WriteTo.RollingFile("logs\\{Date}.log", restrictedToMinimumLevel: LogEventLevel.Information)
+                .CreateLogger();
             CreateWebHostBuilder(args).Build().Run();
         }
 

@@ -3,4 +3,9 @@
     ViewData["Title"] = "Home Page";
 }
 
- 
+@model IdentityServer4.Models.Client
+<html>
+    <body>
+        @Model.ClientId
+    </body>
+</html>

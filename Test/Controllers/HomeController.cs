@@ -3,27 +3,26 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Mvc;
-using Test.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Test.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly IClientStore _clientStore;
+        private readonly ILogger _logger;
+        public HomeController(IClientStore clientStore,ILogger<HomeController> logger)
         {
-            return View();
+            _clientStore = clientStore;
+            _logger = logger;
         }
-
-        public IActionResult Privacy()
+        public async  Task<IActionResult> Index()
         {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+            _logger.LogInformation("start");
+            var vm=await _clientStore.FindClientByIdAsync("IoTClient");
+            return View(vm);
+        } 
     }
 }

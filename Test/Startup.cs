@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using IdentityServer4.EntityFramework.DbContexts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog.AspNetCore;
+using System;
 
 namespace Test
 {
@@ -23,14 +23,30 @@ namespace Test
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
+            var connectionString = Configuration["ConnectionString"];
+            services.AddIdentityServer(x =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
-
-
+                x.IssuerUri = "null";
+                x.Authentication.CookieLifetime = TimeSpan.FromHours(2);
+            })
+           .AddDeveloperSigningCredential()
+           .AddConfigurationStore<Data.ConfigurationDBContextImpl>(options =>
+           {
+               options.ConfigureDbContext = builder =>
+                 builder.UseOracle(connectionString, opt =>
+                 {
+                     opt.UseOracleSQLCompatibility("11");
+                 });
+           })
+          .AddOperationalStore<PersistedGrantDbContext>(options =>
+          {
+              options.ConfigureDbContext = builder =>
+              builder.UseOracle(connectionString, opt =>
+              {
+                  opt.UseOracleSQLCompatibility("11");
+              });
+          });
+            services.AddSingleton<ILoggerFactory>(s => new SerilogLoggerFactory(null, false));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -47,7 +63,7 @@ namespace Test
             }
 
             app.UseStaticFiles();
-            app.UseCookiePolicy();
+
 
             app.UseMvc(routes =>
             {
