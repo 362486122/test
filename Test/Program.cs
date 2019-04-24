@@ -19,7 +19,7 @@ namespace Test
             Serilog.Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Verbose() 
                 .Enrich.FromLogContext()
-                .WriteTo.RollingFile("logs\\{Date}.log", restrictedToMinimumLevel: LogEventLevel.Information)
+                .WriteTo.RollingFile("logs\\{Date}.log", restrictedToMinimumLevel: LogEventLevel.Error)
                 .CreateLogger();
             CreateWebHostBuilder(args).Build().Run();
         }
