@@ -13,8 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace Test.Controllers
 {
     public class HomeController : Controller
-    {
-        private readonly IClientStore _clientStore;
+    { 
         private readonly IConfigurationDbContext _context;
         private readonly ILogger _logger;
         public HomeController(IConfigurationDbContext  configurationDbContext, ILogger<HomeController> logger)
